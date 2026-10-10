@@ -439,6 +439,9 @@ details.acc .acc__body > * + * { margin-top: .75em; }
 /* orphan card spans the row */
 .cards > :last-child:nth-child(odd):not(:only-child) { grid-column: 1 / -1; }
 
+/* two cards share the row */
+.cards:has(> :last-child:nth-child(2)) { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
 /* link list: no stretched gaps */
 .linklist li { align-content: start; }
 
