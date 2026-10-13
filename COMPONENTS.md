@@ -52,7 +52,7 @@ Wide components (tables, cards, exec list, link lists, yes/no) may sit inside `.
 - Ledger table: `<div class="table-wrap"><table class="ledger"><caption class="vh">…</caption><thead><tr><th scope="col">…</th><th scope="col" class="num">Amount</th></tr></thead><tbody><tr><th scope="row">…</th><td class="num">$1,000</td></tr></tbody></table></div>` (money in `td.num`, mono font, right-aligned)
 - Accordion (FAQ, long bylaws): `<details class="acc"><summary>Question?</summary><div class="acc__body"><p>…</p></div></details>`
 - Noticeboard tiles (landing-style pages only): `<div class="board"><article class="tile tile--half">…</article></div>` (`tile--wide`, `tile--half`, `tile--full`, `tile--forest`, `tile--outline`).
-- Money flow mini-diagram: see src/index.html (`.flow`).
+- Money flow mini-diagram: see src/give/index.html (`.flow`).
 - Big email: `<p class="big-email"><a href="mailto:{{site.pacEmail}}">{{site.pacEmail}}</a></p>` plus `<button class="copy-btn" type="button" data-copy="{{site.pacEmail}}">Copy address</button>`.
 - Utility: `.eyebrow`, `.lead`, `.small`, `.muted`, `.mono`, `.pill`, `.vh` (visually hidden).
 - Dates as text in `<time datetime="2026-10-14">Wednesday, October 14, 2026</time>`.
