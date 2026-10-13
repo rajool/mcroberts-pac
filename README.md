@@ -13,7 +13,7 @@ Plain HTML and CSS, one small JavaScript file, and a build script that uses only
 
 ```
 data/site.json     what changes during the year (school year, meetings, executive, links, school dates, preview switch)
-src/               one HTML fragment per page
+src/               one HTML fragment per page, with any files of its own beside it
 partials/          shared layout, preview banner, header, footer
 assets/            CSS, JS, self-hosted fonts, icons
 tools/             HTML sources of the social image and the touch icon (see below)
@@ -25,6 +25,8 @@ HANDOVER.md        how to keep the site up to date
 CLAUDE.md          rules for AI assistants working in this public repo
 ```
 
+The yearly financial report lives in `src/money/2025-26-report/` (published at `money/2025-26-report/`): `data.js` holds its figures, `report.js`, `charts.js`, `scrolly.js` and `give-explorer.js` draw the page, `report.css` styles it on the site's tokens, and `print.html` is the Letter print version the PDF beside it is printed from. HANDOVER.md has the update steps.
+
 ```
 python3 build.py                       build into docs/
 python3 build.py --today 2026-10-14    build as if it were another day
@@ -34,7 +36,7 @@ The build writes to a scratch folder and replaces `docs/` only when it succeeds.
 
 ## Where facts come from
 
-The PAC's own records: meeting minutes, the bylaws, bank and treasurer reports. Money figures follow the source rule in [COMPONENTS.md, section 5](COMPONENTS.md#5-writing-rules): they come from `data.js` in [mcroberts-pac-report](https://github.com/rajool/mcroberts-pac-report) and keep its status. Nothing from private family or PAC correspondence belongs in this repo.
+The PAC's own records: meeting minutes, the bylaws, bank and treasurer reports. Money figures follow the source rule in [COMPONENTS.md, section 5](COMPONENTS.md#5-writing-rules): they come from `src/money/2025-26-report/data.js` and keep its status. Nothing from private family or PAC correspondence belongs in this repo.
 
 ## Images
 

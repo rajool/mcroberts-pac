@@ -7,7 +7,13 @@ Pages live in src/ as HTML fragments. Each starts with a JSON header in an
 HTML comment:
 
     <!--{"title": "Meetings", "description": "...", "out": "meetings/index.html", "nav": "meetings"}-->
-(an optional "absoluteRoot": true makes {{root}} the site's base path, for 404.html)
+(an optional "absoluteRoot": true makes {{root}} the site's base path, for 404.html;
+"css": ["report.css"] adds stylesheets that sit beside the page; "standalone": true
+writes a complete document of its own as it is, without the layout, as the
+financial report's print version is)
+
+Any other file in src/ (a page's scripts, data, styles or PDF) is published at the
+same path under docs/, so a page can keep its own files beside it.
 
 Inside pages you can use:
     {{root}}                  relative path back to the site root ("", "../", ...)
@@ -373,6 +379,7 @@ NAV = [
     {"path": "about/#executive", "long": "Executive", "footer": 1},
     {"path": "meetings/",   "short": "Meetings", "long": "Meetings", "sheet": True, "footer": 1},
     {"path": "money/",      "short": "Money", "long": "Where the money goes", "sheet": True, "footer": 1},
+    {"path": "money/2025-26-report/", "long": "2025–26 financial report", "footer": 1},
     {"path": "wish-list/",  "long": "Teachers' Wish List", "sheet": True, "footer": 1},
     {"path": "grad/",       "long": "Dry After Grad",      "sheet": True, "footer": 1},
     {"path": "give/",       "long": "Ways to give",        "sheet": True, "footer": 2},
@@ -454,20 +461,38 @@ def csp_policy(layout):
             "font-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'")
 
 
+def copy_page_files(OUT):
+    """Publish the files that sit beside pages in src/ (scripts, data, styles, PDFs) at the same path."""
+    for f in sorted(SRC.rglob("*")):
+        if f.is_file() and f.suffix not in (".html", ".md") and f.name != ".DS_Store":
+            dest = OUT / f.relative_to(SRC)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(f, dest)
+
+
 def build_into(OUT):
     OUT.mkdir()
     shutil.copytree(ROOT / "assets", OUT / "assets")
+    copy_page_files(OUT)
     (OUT / ".nojekyll").write_text("")
     if SITE.get("domain"):  # custom domain for GitHub Pages; build() recreates docs/, so it lives in site.json
         (OUT / "CNAME").write_text(SITE["domain"] + "\n")
     parts = {p.stem: p.read_text(encoding="utf-8") for p in PARTIALS.glob("*.html")}
     pages = sorted(SRC.glob("**/*.html"))
+    listed = []  # pages for the sitemap
     for page in pages:
         raw = page.read_text(encoding="utf-8")
         hm = HEADER_RE.match(raw)
         if not hm:
             raise SystemExit(f"{page}: missing JSON header")
         meta = json.loads(hm.group(1))
+        if meta.get("standalone"):  # a complete document of its own: no layout, no placeholders
+            dest = OUT / meta["out"]
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(raw[hm.end():], encoding="utf-8")
+            continue
+        if page.name != "404.html":
+            listed.append(page)
         for k in ("title", "description"):  # headers may use {{site.schoolYear}} and other site values
             meta[k] = html.unescape(fill_site(meta[k]))
         body = raw[hm.end():]
@@ -488,6 +513,7 @@ def build_into(OUT):
             "jsonld": "\n".join(f'<script type="application/ld+json">{json.dumps(j, ensure_ascii=False)}</script>' for j in jsonld),
             "banner": parts["banner"] if PREVIEW else "",
             "body_class": meta.get("bodyClass", ""),
+            "page_css": "".join(f'<link rel="stylesheet" href="{attr(c)}">\n' for c in meta.get("css", [])),
             "preview_attr": ' data-preview="true"' if PREVIEW else "",
             "updated": long_date(UPDATED, weekday=False), "updated_iso": UPDATED.isoformat(),
             "phone_tel": re.sub(r"\D", "", SITE["school"]["phone"]),
@@ -505,8 +531,7 @@ def build_into(OUT):
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(html_out, encoding="utf-8")
     write_calendars(OUT)
-    sitemap_urls = [SITE["baseUrl"] + p.relative_to(SRC).as_posix().replace("index.html", "")
-                    for p in pages if p.name != "404.html"]
+    sitemap_urls = [SITE["baseUrl"] + p.relative_to(SRC).as_posix().replace("index.html", "") for p in listed]
     if PREVIEW:
         (OUT / "robots.txt").write_text("User-agent: *\nAllow: /\n")
     else:
