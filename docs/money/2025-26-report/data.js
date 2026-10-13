@@ -32,6 +32,9 @@ const AWARDS = word(SCHOLAR_AWARDS); // the 2025–26 award count as a word, for
 const usd = (v, dp) => "$" + v.toLocaleString("en-CA", { minimumFractionDigits: dp == null ? (v % 1 ? 2 : 0) : dp, maximumFractionDigits: dp == null ? (v % 1 ? 2 : 0) : dp });
 // Cheque 0099 paid two things: the Dry After Grad bus and, for the rest, the 2025–26 wish list.
 const WISH_PART = round2(WISH_PAID - DAG_SUPPORT);
+// The 2025–26 scholarships: the family fund's cheque 0188 to the school and a parent's donation that went to the school directly.
+const SCHOLAR_TOTAL = round2(SCHOLAR_PAID + SCHOLAR_PARENT);
+const SCHOLAR_SOURCE = `Worked out: cheque 0188 to the school from the family fund (${usd(SCHOLAR_PAID, 2)}, bank record, cashed Jun 10, 2026) and a parent's ${usd(SCHOLAR_PARENT, 2)} donation that the Treasurer reports went to the school directly; ${AWARDS} ${usd(RATES.scholarship)} awards, reported by the Treasurer in October 2026`;
 const WISH_PART_SOURCE = `Worked out: cheque 0099 to the school (${usd(WISH_PAID, 2)}, bank record, gaming account, cashed Aug 22, 2026) less the ${usd(DAG_SUPPORT, 2)} for the Dry After Grad bus`;
 const R = {
   rates: RATES,
@@ -67,8 +70,8 @@ const R = {
       source: WISH_PART_SOURCE },
     { key: "dag", value: DAG_SUPPORT, label: "Paid for the Dry After Grad bus", note: `About ${usd(RATES.dagPerGrad)} for each graduate, in the same cheque`, status: "reported",
       source: DAG_SOURCE },
-    { key: "scholar", value: SCHOLAR_PAID, label: "Paid for Grade 12 scholarships", note: `${cap(AWARDS)} awards, plus a parent's ${usd(SCHOLAR_PARENT)} gift to the school`, status: "confirmed",
-      source: `Bank record, family fund: cheque 0188 to the school for Grade 12 scholarships, written Jun 1, 2026, cashed Jun 10, 2026; ${AWARDS} awards, reported by the Treasurer in October 2026` }
+    { key: "scholar", value: SCHOLAR_TOTAL, label: "Given in Grade 12 scholarships", note: `${cap(AWARDS)} ${usd(RATES.scholarship)} awards: ${usd(SCHOLAR_PAID)} from the family fund and ${usd(SCHOLAR_PARENT)} from a parent`, status: "derived",
+      source: SCHOLAR_SOURCE }
   ],
 
   timeline: [
@@ -80,7 +83,7 @@ const R = {
     { date: "2026-02-11", when: "Feb 11", label: "Dry After Grad support", detail: `About ${usd(RATES.dagPerGrad)} per graduate agreed`, kind: "decision" },
     { date: "2026-02-20", when: "Feb 20–Mar 5", label: "Bubble tea sale", detail: `39 orders · 45 drinks · ${usd(round2(BUBBLE_IN - BUBBLE_COST))} after costs`, kind: "fundraiser" },
     { date: "2026-05-19", when: "May 19–28", label: "Staff breakfast donations", detail: `${usd(BREAKFAST_GIFTS)} from 15 families`, kind: "fundraiser" },
-    { date: "2026-06-01", when: "Jun 1", label: "Scholarships", detail: `${cap(AWARDS)} awards · ${usd(SCHOLAR_PAID)} from the family fund and a parent's ${usd(SCHOLAR_PARENT)} gift`, kind: "fundraiser" },
+    { date: "2026-06-01", when: "Jun 1", label: "Scholarships", detail: `${cap(AWARDS)} awards, ${usd(SCHOLAR_TOTAL)} · ${usd(SCHOLAR_PAID)} from the family fund and ${usd(SCHOLAR_PARENT)} from a parent`, kind: "fundraiser" },
     { date: "2026-06-22", when: "Jun 22–23", label: "Grad dinner & Dry After Grad", detail: "210 graduates reported in February", kind: "event" },
     { date: "2026-06-24", when: "Jun 24", label: "Staff thank-you breakfast", detail: `Planned for 76 staff · cost ${usd(BREAKFAST_COST)}, paid back to a volunteer in July`, kind: "event" },
     { date: "2026-07-20", when: "Jul 20", label: "Wish list and bus paid", detail: `One ${usd(WISH_PAID)} cheque to the school: ${usd(WISH_PART)} wish list, ${usd(DAG_SUPPORT)} Dry After Grad bus (cashed Aug 22)`, kind: "money" }
@@ -174,8 +177,8 @@ const R = {
       moneyIn: { value: FAMILY_IN, status: "confirmed", source: "Bank record, family fund: every deposit from Sep 1, 2025 to Aug 31, 2026" },
       raisedThrough: "in 2025–26",
       spent: [
-        { name: "Scholarships 2026", value: SCHOLAR_PAID, detail: `Cheque to the school, June 2026 · ${AWARDS} awards · a parent's ${usd(SCHOLAR_PARENT)} gift went to the school directly`, status: "confirmed",
-          source: "Bank record, family fund: cheque 0188, cashed Jun 10, 2026; the number of awards, and that a parent's gift went to the school directly, reported by the Treasurer in October 2026" },
+        { name: "Scholarships 2026", value: SCHOLAR_PAID, detail: `Cheque to the school, June 2026 · ${AWARDS} ${usd(RATES.scholarship)} awards, ${usd(SCHOLAR_TOTAL)} in all with a parent's ${usd(SCHOLAR_PARENT)} donation that went to the school directly`, status: "confirmed",
+          source: "Bank record, family fund: cheque 0188, cashed Jun 10, 2026; the number of awards, and that a parent's donation went to the school directly, reported by the Treasurer in October 2026" },
         { name: "Staff thank-you breakfast", value: BREAKFAST_COST, detail: `June 24 · paid back to a volunteer in July · families gave ${usd(BREAKFAST_GIFTS)} and the family fund paid the other ${usd(round2(BREAKFAST_COST - BREAKFAST_GIFTS))}`, status: "confirmed",
           source: `Bank record, family fund: cheque 0189, cashed Jul 14, 2026; ${PURPOSE_SOURCE}` },
         { name: "Samosas for the October pre-order", value: SAMOSA_COST, detail: "Cheque cashed in December 2025 · the samosa cost", status: "confirmed",
@@ -196,10 +199,12 @@ const R = {
     note: "A parent committee runs Dry After Grad and keeps its own bank account. The PAC's support was paid to the school in the August cheque, for the grad-night bus."
   },
 
-  // Grade 12 scholarships 2025–26: the family fund's cheque 0188 (headline "scholar") and a parent's gift that went to the school directly.
+  // Grade 12 scholarships 2025–26 (headline "scholar"): the family fund's cheque 0188 and a parent's donation that went to the school directly.
   scholarships: {
     awards: { value: SCHOLAR_AWARDS, each: RATES.scholarship, status: "reported", source: "Reported by the Treasurer in October 2026; the May 13, 2026 minutes planned three $500 awards" },
-    parentGift: { value: SCHOLAR_PARENT, status: "reported", source: "Reported at the Apr 8, 2026 meeting; the Treasurer reports it went to the school directly, so it was never in either PAC account" }
+    fromFund: { value: SCHOLAR_PAID, status: "confirmed", source: "Bank record, family fund: cheque 0188 to the school for Grade 12 scholarships, written Jun 1, 2026, cashed Jun 10, 2026" },
+    parentGift: { value: SCHOLAR_PARENT, status: "reported", source: "Reported at the Apr 8, 2026 meeting; the Treasurer reports it went to the school directly, so it was never in either PAC account" },
+    total: { value: SCHOLAR_TOTAL, status: "derived", source: SCHOLAR_SOURCE }
   },
 
   wishlist: {
@@ -310,7 +315,8 @@ const R = {
   const inFam = round2(O.raised.reduce((a, r) => a + r.value, 0) + O.otherIn.value);
   const outFam = round2(O.spent.reduce((a, s) => a + (s.value || 0), 0));
   const famGap = round2(O.opening.value + O.moneyIn.value - outFam - O.closing.value);
-  if (gap || splitGap || dagGap || intGap || stmtGap || famGap || inFam !== O.moneyIn.value) console.error("data.js: the accounts do not add up", { gap, splitGap, dagGap, intGap, stmtGap, famGap, inFam });
+  const S = R.scholarships, schGap = round2(S.fromFund.value + S.parentGift.value - S.awards.value * S.awards.each);
+  if (gap || splitGap || dagGap || intGap || stmtGap || famGap || schGap || inFam !== O.moneyIn.value) console.error("data.js: the accounts do not add up", { gap, splitGap, dagGap, intGap, stmtGap, famGap, schGap, inFam });
 })(R);
 
 return R;

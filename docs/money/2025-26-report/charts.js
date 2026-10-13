@@ -78,7 +78,9 @@
       family: money(Math.round(O.moneyIn.value / 100) * 100, 0),
       paid: money(G.wishCheque.value, 0), wishChequeAmt: money(G.wishCheque.value, 2), gamingClosing: money(G.closing.value, 2),
       wishPart: money(split("wish").value, 0), wishPart2: money(split("wish").value, 2),
-      scholarPaid: money(headline("scholar"), 0), scholarGoal: money(scholarGoal, 0), staffGoal: money(staffGoal, 0), scholarGap: money(scholarGoal - headline("scholar"), 0),
+      scholarCount: ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"][R.scholarships.awards.value] || String(R.scholarships.awards.value),
+      scholarPaid: money(R.scholarships.fromFund.value, 0), scholarParent: money(R.scholarships.parentGift.value, 0), scholarTotal: money(R.scholarships.total.value, 0),
+      scholarGoal: money(scholarGoal, 0), staffGoal: money(staffGoal, 0), scholarGap: money(scholarGoal - R.scholarships.total.value, 0),
       cheque: G.carriedCheque.number, chequeDate: G.carriedCheque.writtenLabel, chequeAmt: money(G.carriedCheque.value, 2)
     };
     root.querySelectorAll("[data-fmt]").forEach(n => { const v = T[n.dataset.fmt]; if (v == null) throw new Error("Unknown copy token " + n.dataset.fmt); n.textContent = v; });

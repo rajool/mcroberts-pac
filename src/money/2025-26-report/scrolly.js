@@ -20,7 +20,7 @@
   const split = k => R.accounts.gaming.wishCheque.split.find(p => p.key === k);
   const FAMILY = Math.round(R.accounts.operating.moneyIn.value / 100);        // 17: into the family fund, Sep 2025 – Aug 2026
   const money = window.PACViz.money;
-  const SCHOLAR_PAID = R.headline.find(h => h.key === "scholar").value;
+  const SCH = R.scholarships;                                                // 2025–26: three $500 awards, from the family fund and a parent
   const SCHOLAR_GOAL = R.appeal.goals.find(g => g.label.startsWith("Grade 12")).target;
   const POOL = Math.max(REQ, APPROVED + DAG + 40, PAID, 260);
 
@@ -156,15 +156,22 @@
       L.push({ x: hx(x0), y: y0 - 30, w: W - pad - hx(x0), cls: "wr", html: `About <b>${money(FAMILY * 100, 0)}</b> into the family fund this year` });
     }
     if (key === "scholarSet") {
-      // One group, at the square size of the 2026–27 goal groups so the two amounts compare.
-      // Whole hundreds are full squares; a remainder under one hundred is one faded square.
-      const t = Math.max(T, Math.min(40, (availW - 4 * 28) / (5 * 2.2))), g = t * 0.18, c = 5;
-      const full = Math.floor(SCHOLAR_PAID / 100), n = full + (SCHOLAR_PAID % 100 ? 1 : 0);
-      const rows = Math.ceil(n / c), bw = c * t + (c - 1) * g, bh = rows * t + (rows - 1) * g;
-      const x0 = pad + (availW - bw) / 2, y0 = vy(bh + 40);
-      for (let i = 0; i < n; i++) { const [x, y] = gridPos(i, c, t, g, x0, y0); Object.assign(tiles[i], { tx: x, ty: y, ts: t, ta: i < full ? 1 : 0.4, color: "operating", delay: i * 0.8 }); }
-      L.push({ x: x0, y: y0 + bh + 10, w: W - pad - x0, cls: "small", html: `2025–26<br><span>${money(SCHOLAR_PAID, 0)} paid</span>` });
-      L.push({ x: hx(x0), y: y0 - 30, w: W - pad - hx(x0), cls: "wr", html: `<b>${money(SCHOLAR_PAID, 0)}</b> paid for scholarships in June 2026` });
+      // The 2025–26 awards as groups of five squares ($500 each), at the size of the 2026–27 goal groups so the two scenes compare.
+      const groups = SCH.awards.value, per = Math.round(SCH.awards.each / 100);
+      const t = Math.max(T, Math.min(40, (availW - 4 * 28) / (5 * 2.2)));
+      const g = t * 0.18, gw = 2 * t + g, gh = 3 * t + 2 * g;
+      const gap = Math.min(34, Math.max(12, (availW - 5 * gw) / 4));
+      const spacing = gw + gap, totalW = groups * gw + (groups - 1) * gap;
+      const x0 = pad + (availW - totalW) / 2, y0 = vy(gh + 40);
+      let k = 0;
+      for (let s = 0; s < groups; s++) {
+        for (let i = 0; i < per; i++, k++) {
+          const [x, y] = gridPos(i, 2, t, g, x0 + s * spacing, y0);
+          Object.assign(tiles[k], { tx: x, ty: y, ts: t, ta: 1, color: "operating", delay: s * 3 + i * 0.4 });
+        }
+        L.push({ x: x0 + s * spacing, y: y0 + gh + 10, w: spacing, cls: "small", html: `No. ${s + 1}<br><span>${money(SCH.awards.each, 0)}</span>` });
+      }
+      L.push({ x: hx(x0), y: y0 - 30, w: W - pad - hx(x0), cls: "wr", html: narrow ? `<b>${money(SCH.total.value, 0)}</b> · ${groups} scholarships` : `<b>${money(SCH.total.value, 0)}</b> for ${groups} scholarships in June 2026` });
     }
     if (key === "scholarGoal") {
       const groups = 5;
